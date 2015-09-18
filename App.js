@@ -1,4 +1,4 @@
-//localhost:1337/App-debug.html?apiKey=_37kqhjoDRf6fnZ6T1IiYXrrjcpVbTk7Llx2r7omTMQ&project=/project/23112780161
+
 Ext.define('CustomApp', {
     extend: 'Rally.app.App',
     componentCls: 'app',
@@ -24,19 +24,15 @@ Ext.define('CustomApp', {
             d.setMonth(d.getMonth() - monthOffset);
             return d;
         };
-        var howFarBack = (new Date()).calcFullMonths(this.numberOfMonths);
         
         //Rally.util.DateTime.format(prevSaturday, 'Y-m-d')
         for(var m=1; m <= this.numberOfMonths; m++){
             var firstDayOfNextMonth = new Date(howFarBack.getFullYear(), howFarBack.getMonth() + 1, 1);
-            //this.intervals.push({
-            //    'from'  :   howFarBack.toISOString(),
-            //    'to'    :   firstDayOfNextMonth.toISOString()
-            //});
             this.intervals.push({
-                'from'  :   Rally.util.DateTime.format(howFarBack, 'Y-m-d'),
-                'to'    :   Rally.util.DateTime.format(firstDayOfNextMonth, 'Y-m-d'),
+                'from'  :   howFarBack.toISOString(),           //or Rally.util.DateTime.format(howFarBack, 'Y-m-d'),
+                'to'    :   firstDayOfNextMonth.toISOString()   //Rally.util.DateTime.format(firstDayOfNextMonth, 'Y-m-d'),
             });
+            
             howFarBack = firstDayOfNextMonth;
         }
         //console.log('intervals', this.intervals);
@@ -102,7 +98,7 @@ Ext.define('CustomApp', {
                     }
                 }
                 else{
-                    console.log('error');
+                    console.log('oh,noes!');
                 }
             }
         });
