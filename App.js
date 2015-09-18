@@ -8,12 +8,12 @@ Ext.define('CustomApp', {
     numberOfMonths: 5,
     intervals:[],
     tagAndCreationFilters:[],
-    store:null,
+    initialStore:null,
     createdAndTagged:[],
     launch: function() {
         this.getDates();
         this.createInitialFilters();
-        this.makeWsapiStore();
+        this.makeInitialStore();
     },
     getDates:function(){
         var now = new Date();
@@ -25,7 +25,7 @@ Ext.define('CustomApp', {
             return d;
         };
         
-        //Rally.util.DateTime.format(prevSaturday, 'Y-m-d')
+        var howFarBack = (new Date()).calcFullMonths(this.numberOfMonths);
         for(var m=1; m <= this.numberOfMonths; m++){
             var firstDayOfNextMonth = new Date(howFarBack.getFullYear(), howFarBack.getMonth() + 1, 1);
             this.intervals.push({
@@ -64,8 +64,8 @@ Ext.define('CustomApp', {
         //    console.log(filter.toString());
         //});
     },
-    makeWsapiStore:function(){
-        this.store = Ext.create('Rally.data.wsapi.Store',{
+    makeInitialStore:function(){
+        this.initialStore = Ext.create('Rally.data.wsapi.Store',{
             model: 'Defect',
             //fetch: ['ObjectID','FormattedID','ScheduledState','State','CreationDate','ClosedDate','InProgressDate','AcceptedDate','Prject'],
             limit: Infinity
@@ -78,8 +78,8 @@ Ext.define('CustomApp', {
     
     applyFiltersToStore:function(i){
         console.log('applyFiltersToStore', this.tagAndCreationFilters[i].toString());
-        this.store.addFilter(this.tagAndCreationFilters[i]);
-        this.store.load({
+        this.initialStore.addFilter(this.tagAndCreationFilters[i]);
+        this.initialStore.load({
             scope: this,
             callback: function(records, operation) {
                 if(operation.wasSuccessful()) {
@@ -89,12 +89,12 @@ Ext.define('CustomApp', {
                             this.createdAndTagged[[i]].push(record.get('_ref'));
                         },this);
                     }
-                    this.store.clearFilter(records.length);
+                    this.initialStore.clearFilter(records.length);
                     if (i < this.tagAndCreationFilters.length-1) { //if not done, call itself
                         this.applyFiltersToStore(i + 1);
                     }
                     else{
-                        this.onDefectsLoaded();
+                        this.onInitialStoreLoaded();
                     }
                 }
                 else{
@@ -103,16 +103,13 @@ Ext.define('CustomApp', {
             }
         });
     },
-    onDefectsLoaded:function(){
-        console.log('onDefectsLoaded');
+    onInitialStoreLoaded:function(){
         _.each(this.createdAndTagged, function(defectsPerInterval){
             console.log('........',defectsPerInterval.length);
-            _.each(defectsPerInterval, function(defect){
-                console.log(defect);
-            });
-        });
-        
-        
+            //_.each(defectsPerInterval, function(defect){
+            //    console.log(defect);
+            //});
+        });   
     }
     
 });
