@@ -67,7 +67,7 @@ Ext.define('CustomApp', {
     makeInitialStore:function(){
         this.initialStore = Ext.create('Rally.data.wsapi.Store',{
             model: 'Defect',
-            //fetch: ['ObjectID','FormattedID','ScheduledState','State','CreationDate','ClosedDate','InProgressDate','AcceptedDate','Prject'],
+            fetch: ['ObjectID','FormattedID','ScheduledState','State','CreationDate','OpenedDate','InProgressDate','AcceptedDate'],
             limit: Infinity
         });
         for (i=0; i < this.intervals.length; i++) {
@@ -86,7 +86,18 @@ Ext.define('CustomApp', {
                     console.log('records.length',records.length);
                     if (i<this.intervals.length) { 
                         _.each(records, function(record){
-                            this.createdAndTagged[[i]].push(record.get('_ref'));
+                            this.createdAndTagged[[i]].push({
+                                '_ref':record.get('_ref'),
+                                'ObjectID':record.get('ObjectID'),
+                                'FormattedID':record.get('FormattedID'),
+                                'ScheduledStateState': record.get('ScheduledStateState'),
+                                'State': record.get('State'),
+                                'CreationDate': Rally.util.DateTime.format(record.get('CreationDate'), 'Y-m-d'),
+                                'OpenedDate': Rally.util.DateTime.format(record.get('OpenedDate'), 'Y-m-d'),
+                                'InProgressDate': Rally.util.DateTime.format(record.get('InProgressDate'), 'Y-m-d'),
+                                'AcceptedDate': Rally.util.DateTime.format(record.get('AcceptedDate'), 'Y-m-d')
+                                
+                            });
                         },this);
                     }
                     this.initialStore.clearFilter(records.length);
@@ -106,9 +117,9 @@ Ext.define('CustomApp', {
     onInitialStoreLoaded:function(){
         _.each(this.createdAndTagged, function(defectsPerInterval){
             console.log('........',defectsPerInterval.length);
-            //_.each(defectsPerInterval, function(defect){
-            //    console.log(defect);
-            //});
+            _.each(defectsPerInterval, function(defect){
+                console.log(defect);
+            });
         });   
     }
     
